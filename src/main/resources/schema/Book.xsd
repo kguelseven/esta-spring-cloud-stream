@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<schema version="0.1" xmlns="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="http://ch.sbb.esta/book_xsd"
+        xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" jaxb:version="2.0">
+
+    <complexType name="Book">
+        <attribute name="id" type="long" use="required"/>
+        <attribute name="name" type="string" use="required"/>
+        <attribute name="pagesCount" type="long" use="required"/>
+    </complexType>
+
+</schema>

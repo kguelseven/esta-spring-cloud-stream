@@ -1,0 +1,108 @@
+
+
+application:
+  name: @project.artifactId@
+  version: @project.version@
+  stage: DEV
+
+logging:
+  level:
+    org.springframework: DEBUG
+    org.aspectj: DEBUG
+    io.swagger: INFO
+    ch.sbb.esta: DEBUG
+
+
+spring:
+  jackson:
+    default-property-inclusion: NON_EMPTY
+  cloud:
+    stream:
+      solace:
+        default:
+          prefix: escs/${application.stage}/
+          producer:
+            prefix: ${spring.cloud.stream.solace.default.prefix}
+            msgTtl: 15000
+            msgInternalDmqEligible: true
+          consumer:
+            prefix: ${spring.cloud.stream.solace.default.prefix}
+            autoBindDmq: true
+      function:
+        definition: bookSupplierV1;bookFunctionV1;bookConsumerV1;bookRequestReplyV1;bookRequestSupplierV1;bookRawXmlConsumerV1;bookRawJsonConsumerV1
+      default:
+        group:  esta-scs.scs
+        consumer:
+          concurrency: 2
+      bindings:
+        bookSupplierV1-out-0:
+          destination: v1/bookJson
+        bookFunctionV1-in-0:
+          destination: v1/bookJson
+          consumer:
+            concurrency: 4
+        bookFunctionV1-out-0:
+          destination: v1/bookXml
+          contentType: "application/xml"
+          producer:
+            msgTtl: 20000 # TODO make it work
+        bookConsumerV1-in-0:
+          destination: v1/bookXml
+          contentType: "application/xml"
+          # routing-expression: "headers['type']=='order'" # has no effect
+          #routing-expression:  spring.cloud.function.routing-expression header to value T(java.lang.System).currentTimeMillis() % 2 == 0 ? 'even' : 'odd'
+        bookRequestReplyV1-in-0:
+          destination: v1/bookRequest
+        bookRequestReplyV1-out-0:
+          destination: v1/bookResponse
+        bookRequestSupplierV1-out-0:
+          destination: ${spring.cloud.stream.bindings.bookRequestReplyV1-in-0.destination}
+        bookRawXmlConsumerV1-in-0:
+          destination: v1/bookXml
+          group:  esta-scs.rawxml
+          contentType: "application/xml"
+        bookRawJsonConsumerV1-in-0:
+          destination: v1/bookJson
+          group: rawjson
+
+
+solace:
+  java:
+    host: ${SOLACE_HOSTS}
+    msgVpn: ${SOLACE_MSG_VPN}
+    clientUsername: ${SOLACE_USERNAME}
+    clientPassword: ${SOLACE_PASSWORD}
+    clientName: @project.artifactId@
+    connectRetries: 5
+    reconnectRetries: 2
+    #reconnect-retry-wait-in-millis: 100
+#    apiProperties:
+#      SSL_TRUST_STORE: classpath:cacerts
+#      SSL_TRUST_STORE_FORMAT: JKS
+#      SSL_TRUST_STORE_PASSWORD: LOOKILOOKIE
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+
+management:
+  health:
+    binders:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always
+    metrics:
+      enabled: true
+      cache:
+        time-to-live: 'PT60s'
+  endpoints:
+    jmx:
+      exposure:
+        include: metrics
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+server:
+  port: 8088

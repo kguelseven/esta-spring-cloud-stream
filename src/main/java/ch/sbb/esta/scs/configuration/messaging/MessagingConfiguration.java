@@ -34,16 +34,6 @@ public class MessagingConfiguration {
     }
 
     @Bean
-    public Function<Message<BookRequest>, Message<Book>> bookRequestReplyV1(final BookReplyHandler bookReplyHandler) {
-        return bookReplyHandler::findBookById;
-    }
-
-    @Bean
-    public Supplier<Flux<BookRequest>> bookRequestSupplierV1(final BookRequestHandler bookRequestHandler) {
-        return bookRequestHandler::supplyBookRequestProcessor;
-    }
-
-    @Bean
     public Consumer<String> bookRawJsonConsumerV1() {
         return (json) -> LOG.info("STEP 2a: bookRawJsonConsumerV1 got: {}", json);
     }

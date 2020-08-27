@@ -26,6 +26,7 @@
 
         <swagger.version>2.9.2</swagger.version>
         <spring-cloud-stream-solace.version>2.1.1</spring-cloud-stream-solace.version>
+        <!--spring-cloud-stream-kafka.version>2.1.1</spring-cloud-stream-kafka.version-->
         <opentracing-spring-jaeger-cloud-starter.version>3.1.2</opentracing-spring-jaeger-cloud-starter.version>
     </properties>
 
@@ -50,6 +51,11 @@
             <groupId>com.solace.spring.cloud</groupId>
             <artifactId>spring-cloud-starter-stream-solace</artifactId>
             <version>${spring-cloud-stream-solace.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-stream-binder-kafka-streams</artifactId>
+<!--            <version>${spring-cloud-stream-kafka.version}</version>-->
         </dependency>
         <dependency>
             <groupId>io.micrometer</groupId>

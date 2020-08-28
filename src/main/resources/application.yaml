@@ -1,5 +1,3 @@
-
-
 application:
   name: @project.artifactId@
   version: @project.version@
@@ -37,8 +35,25 @@ spring:
                 clientName: @project.artifactId@
                 connectRetries: 5
                 reconnectRetries: 2
-        kafka:
+        kafka1:
           type: kafka
+          environment:
+            spring:
+              cloud:
+                stream:
+                  kafka:
+                    binder:
+                      autoCreateTopics: false
+                      brokers: streams02.01d.io.sbb.ch:9094
+                      configuration:
+                        security.protocol: SSL
+                        ssl.keystore.location: kafka/kafka-keystore.p12
+                        ssl.keystore.password: ${STORE_PASSWORD}
+                        ssl.keystore.type: PKCS12
+                        ssl.truststore.location: kafka/kafka-truststore.p12
+                        ssl.truststore.password: ${STORE_PASSWORD}
+                        ssl.truststore.type: PKCS12
+
       bindings:
         bookSupplierV1-out-0:
           destination: v1/bookJson
@@ -49,22 +64,21 @@ spring:
             concurrency: 4
           binder: solace1
         bookFunctionV1-out-0:
-          destination: v1/bookXml
+          destination: esta-scs.dev.demo.v1.bookxml
           contentType: "application/xml"
-          producer:
-            msgTtl: 20000 # TODO make it work
-          binder: solace1
+          binder: kafka1
         bookConsumerV1-in-0:
-          destination: v1/bookXml
+          destination: esta-scs.dev.demo.v1.bookxml
+          group:  esta-scs.xml
           contentType: "application/xml"
-          binder: solace1
+          binder: kafka1
           # routing-expression: "headers['type']=='order'" # has no effect
-          #routing-expression:  spring.cloud.function.routing-expression header to value T(java.lang.System).currentTimeMillis() % 2 == 0 ? 'even' : 'odd'
+          # routing-expression:  spring.cloud.function.routing-expression header to value T(java.lang.System).currentTimeMillis() % 2 == 0 ? 'even' : 'odd'
         bookRawXmlConsumerV1-in-0:
-          destination: v1/bookXml
+          destination: esta-scs.dev.demo.v1.bookxml
           group:  esta-scs.rawxml
           contentType: "application/xml"
-          binder: solace1
+          binder: kafka1
         bookRawJsonConsumerV1-in-0:
           destination: v1/bookJson
           group: rawjson
@@ -80,12 +94,9 @@ spring:
             prefix: ${spring.cloud.stream.solace.default.prefix}
             autoBindDmq: true
 
-
-
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
-
 
 management:
   health:
@@ -108,5 +119,6 @@ management:
     web:
       exposure:
         include: health,info,metrics,prometheus
+
 server:
   port: 8088

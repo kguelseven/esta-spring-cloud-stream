@@ -1,0 +1,50 @@
+{
+  "mainBranch": "master",
+  "mvn": {
+    "parentPom": "pom.xml",
+    "deployableArtifactsPom": "pom.xml",
+    "artifactoryMavenRepo": "vt-scs.mvn"
+  },
+  "docker": {
+    "artifactoryDockerRepo": "vt-scs.docker",
+    "openshiftAppName": "vt-scs"
+  },
+  "stages": [
+    {
+      "stageName": "dev",
+      "isOpenshiftDeploymentEnabled": true,
+      "openshiftProject": "u213267-esta-scs",
+      "openshiftCluster": "otc_test_04",
+      "openshiftJenkinsCredentialsId": "bd306005-1a02-4f9f-a759-642687bf5f63",
+      "preCiDeploymentJob": "",
+      "postCiDeploymentJob": ""
+    }
+  ],
+  "steps": [
+    {
+      "stepType": "integrationBuild",
+      "isBuildEnabled": false
+    },
+    {
+      "stepType": "continuous",
+      "isBuildEnabled": true,
+      "branchNamePrefixes": [
+        "feature"
+      ]
+    },
+    {
+      "stepType": "release",
+      "isBuildEnabled": true,
+      "xrayScanEnabled": true,
+      "failOnXrayScan": false,
+      "sonarScanEnabled": false,
+      "staging": {
+        "stages": [
+          "dev"
+        ]
+      },
+      "triggerBuildOnCommitEnabled": true,
+      "hotfixCreationEnabled": false
+    }
+  ]
+}
